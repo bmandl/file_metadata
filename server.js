@@ -3,10 +3,15 @@ var express = require('express');
 var cors = require('cors');
 const bodyParser = require('body-parser')
 const dotenv = require('dotenv')
+const fileUpload = require('express-fileupload');
 var app = express();
 dotenv.config();
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
+// enable files upload
+app.use(fileUpload({
+  createParentPath: true
+}));
 // require and use "multer"...
 
 app.use(cors());
@@ -14,6 +19,15 @@ app.use(express.static(process.cwd() + '/public')); //heroku
 app.get('/', function (req, res) {
   res.sendFile(process.cwd() + '/views/index.html'); //heroku
 });
+
+app.post('/api/fileanalyse', (req, res, next) => {
+  var file = req.files.upfile;
+  if (!req.files) {
+    console.log("File not loaded");
+    next();
+  }
+  res.json({ filesize: file.size });
+})
 
 // Not found middleware
 app.use((req, res, next) => {
